@@ -235,6 +235,38 @@ describe('APP', () => {
                         expect(body.articles[0]).to.contain.keys('comment_count')
                     })
                 });
+                it('GET returns 200 and accepts sort_by query DEFAULTING to date', () => {
+                    return request(app)
+                    .get('/api/articles')
+                    .expect(200)
+                    .then(({body}) => {
+                        expect(body.articles).to.be.sortedBy('created_at', {descending: true})
+                    })
+                });
+                it('GET returns 200 and accepts sort_by query author', () => {
+                    return request(app)
+                    .get('/api/articles?sort_by=author')
+                    .expect(200)
+                    .then(({body}) => {
+                        expect(body.articles).to.be.sortedBy('author', {descending: true})
+                    })
+                });
+                it('GET returns 200 and has DEFAULT sort order of desc', () => {
+                    return request(app)
+                    .get('/api/articles')
+                    .expect(200)
+                    .then(({body}) => {
+                        expect(body.articles).to.be.sortedBy('created_at', {descending: true})
+                    })
+                });
+                it('GET returns 200 and accepts an order query that can change the sort order to asc', () => {
+                    return request(app)
+                    .get('/api/articles?order=asc')
+                    .expect(200)
+                    .then(({body}) => {
+                        expect(body.articles).to.be.sortedBy('created_at')
+                    })
+                }) /*author and topic on GET/api/articles to come and errors */
             });
         });
     });

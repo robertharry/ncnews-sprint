@@ -55,12 +55,13 @@ exports.selectCommentsByArticleId = (article_id, sort_by, order) => {
     .returning('*')
 };
 
-exports.selectAllArticles = () => {
+exports.selectAllArticles = (sort_by, order) => {
     return connection 
     .select('articles.author', 'articles.title', 'articles.article_id', 'articles.topic', 'articles.created_at', 'articles.votes')
     .from('articles')
     .count({comment_count: 'comments'})
     .leftJoin('comments', 'articles.article_id', 'comments.article_id')
     .groupBy('articles.article_id')
+    .orderBy(sort_by || 'created_at', order || 'desc')
     
 };
