@@ -38,10 +38,29 @@ exports.insertComment = (article_id, body) => {
     .where('articles.article_id', article_id)
     .insert(newBody)
     .returning('*')
-    .then(comment => {
-       // console.log(comment)
-        if(!comment.length){
-            return Promise.reject({status: 404, msg: 'Article not found'})
-        } else return comment
-    })
+};
+
+exports.selectCommentsByArticleId = (article_id, sort_by, order) => {
+    return connection
+    .select('comments.comment_id', 
+    'comments.author', 
+    'comments.created_at', 
+    'comments.votes', 
+    'comments.body')
+    .from('comments')
+    .join('articles', 'comments.article_id', 'articles.article_id', )
+    .groupBy('comments.comment_id')
+    .orderBy(sort_by || 'created_at', order || 'desc')
+    .where('comments.article_id', article_id)
+    .returning('*')
+};
+
+exports.selectAllArticles = () => {
+    return connection 
+    .select('articles.author', 'articles.title', 'articles.article_id', 'articles.topic', 'articles.created_at', 'articles.votes')
+    .from('articles')
+    .count({comment_count: 'comments'})
+    .leftJoin('comments', 'articles.article_id', 'comments.article_id')
+    .groupBy('articles.article_id')
+    
 };

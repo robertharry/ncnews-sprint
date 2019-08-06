@@ -12,7 +12,8 @@ exports.customErrors = (err, req, res, next) => {
 exports.psqlErrors = (err, req, res, next) => {
     const errCodes = {
         '22P02': 'Bad request',
-        '23503': 'Not found in table'
+        '23503': 'Not found in table',
+        '42703': 'Cannot sort by column that does not exist'
     }
     if (errCodes[err.code]) {
         res.status(400).send({ msg: errCodes[err.code] })
