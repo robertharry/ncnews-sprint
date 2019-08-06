@@ -38,4 +38,10 @@ exports.insertComment = (article_id, body) => {
     .where('articles.article_id', article_id)
     .insert(newBody)
     .returning('*')
+    .then(comment => {
+       // console.log(comment)
+        if(!comment.length){
+            return Promise.reject({status: 404, msg: 'Article not found'})
+        } else return comment
+    })
 };

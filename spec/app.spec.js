@@ -138,6 +138,33 @@ describe('APP', () => {
                         //console.log(body)
                     })
                 });
+                it('POST ERROR returns 400 not found in table when given article ID that is not found', () => {
+                    return request(app)
+                    .post('/api/articles/345/comments')
+                    .send({username: 'butter_bridge', body: 'Here is my comment for this article'})
+                    .expect(400)
+                    .then(({ body }) => {
+                        expect(body.msg).to.equal('Not found in table')
+                    });
+                });
+                it('POST ERROR returns 400 Bad request when given invalid article id', () => {
+                    return request(app)
+                    .post('/api/articles/invalidID/comments')
+                    .send({username: 'butter_bridge', body: 'Here is my comment for this article'})
+                    .expect(400)
+                    .then(({ body }) => {
+                        expect(body.msg).to.equal('Bad request')
+                    });
+                });
+                it('POST ERROR returns 400 Bad request when given bad input info', () => {
+                    return request(app)
+                    .post('/api/articles/invalidID/comments')
+                    .send({userInvalid: 'butter_bridge', bodyInv: 'Here is my comment for this article'})
+                    .expect(400)
+                    .then(({ body }) => {
+                        expect(body.msg).to.equal('Bad request')
+                    });
+                });
             });
         });
     });
