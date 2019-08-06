@@ -34,8 +34,13 @@ exports.formatComments = (comments, articleRef) => {
     })
     return newObj
 };
-//created_by renamed to author
-//belongs_to renamed to article_id
-//article_id should be the value give by refObj
-//created_at value converted to date
-//NO MUTATION
+
+exports.formatOneComment = (comment, id) =>{
+   const newObj = {}
+   for (name in comment) {
+       newObj['author'] = comment.username
+       newObj.body = comment.body
+       newObj.article_id = id
+   }
+   return newObj
+};

@@ -99,18 +99,46 @@ describe('APP', () => {
                             expect(body.msg).to.equal('Bad request')
                         })
                 });
-                it('PATCH returns 201 and the updated article', () => {
+                it('PATCH returns 201 and the artile with updated number of votes', () => {
                     return request(app)
-                    .patch('/api/articles/1')
-                    .send({inc_votes:45}) /* article 1 has 100 */ 
+                        .patch('/api/articles/1')
+                        .send({ inc_votes: 45 }) /* article 1 has 100 */
+                        .expect(201)
+                        .then(({ body }) => {
+                            expect(body).to.be.an('object')
+                            expect(body.article.votes).to.equal(145)
+                        })
+                });
+                it('PATCH ERROR, returns 404 article not found when no article found', () => {
+                    return request(app)
+                        .patch('/api/articles/456')
+                        .send({ inc_votes: 45 })
+                        .expect(404)
+                        .then(({ body }) => {
+                            expect(body.msg).to.equal('Article not found')
+                        });
+                });
+                it('GET ERROR, returns 400 bad request when given invalid article ID', () => {
+                    return request(app)
+                        .get('/api/articles/badinput')
+                        .send({ inc_votes: 45 })
+                        .expect(400)
+                        .then(({ body }) => {
+                            expect(body.msg).to.equal('Bad request')
+                        })
+                });
+            });
+            describe('/:article_id/comments', () => {
+                it('POST inserts a new comment and returns the posted comment', () => {
+                    return request(app)
+                    .post('/api/articles/1/comments')
+                    .send({username: 'butter_bridge', body: 'Here is my comment for this article'})
                     .expect(201)
                     .then(({body}) => {
-                        expect(body).to.be.an('object')
-                        expect(body.article.votes).to.equal(145)
+                        //console.log(body)
                     })
                 });
             });
         });
-
     });
 });

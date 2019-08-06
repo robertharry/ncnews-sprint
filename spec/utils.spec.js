@@ -3,6 +3,7 @@ const {
   formatDates,
   makeRefObj,
   formatComments,
+  formatOneComment
 } = require('../db/utils/utils');
 
 describe('formatDates', () => {
@@ -235,13 +236,18 @@ describe('formatComments', () => {
   });
 
 });
-/*
-{
-  body:
-    "Oh, I've got compassion running out of my nose, pal! I'm the Sultan of Sentiment!",
-  belongs_to: "They're not exactly dogs, are they?",
-  created_by: 'butter_bridge',
-  votes: 16,
-  created_at: 1511354163389,
-}
-*/
+describe('formatOneComment', () => {
+  it('changes key from username to author', () => {
+    expect(formatOneComment({username: 'a name'})).to.contain.keys('author')
+  });
+  it('does not alter the body of the input', () => {
+    expect(formatOneComment({username: 'butter_bridge', body: 'Here is my comment for this article'})).to.contain.keys('author', 'body')
+  });
+  it('adds a further key are article_id from a given input', () => {
+    const input = {username: 'butter_bridge', body: 'Here is my comment for this article'}
+    const id = 1
+    const actual = formatOneComment(input, id)
+    const expected = {author: 'butter_bridge', body: 'Here is my comment for this article', article_id:1}
+    expect(actual).to.eql(expected)
+  });
+});
