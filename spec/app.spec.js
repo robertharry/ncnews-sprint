@@ -35,7 +35,7 @@ describe('APP', () => {
         });
         describe('/USERS', () => {
             describe('/:username', () => {
-                it('returns 200 and object with username, avatar_url and name', () => {
+                it('GET returns 200 and object with username, avatar_url and name', () => {
                     return request(app)
                         .get('/api/users/butter_bridge')
                         .expect(200)
@@ -44,7 +44,7 @@ describe('APP', () => {
                             expect(body.user).to.have.keys('username', 'avatar_url', 'name')
                         });
                 });
-                it('ERROR, return 404 not found when username not found', () => {
+                it('GET ERROR, return 404 not found when username not found', () => {
                     return request(app)
                         .get('/api/users/invaliduser')
                         .expect(404)
@@ -64,42 +64,53 @@ describe('APP', () => {
                     return Promise.all(methodPromises)
                 });
             });
-            describe('/ARTICLES', () => {
-                describe('/:article_id', () => {
-                    it('returns 200 and an article object by ID', () => {
-                        return request(app)
+        });
+        describe('/ARTICLES', () => {
+            describe('/:article_id', () => {
+                it('GET returns 200 and an article object by ID', () => {
+                    return request(app)
                         .get('/api/articles/1')
                         .expect(200)
-                        .then(({body}) => {
+                        .then(({ body }) => {
                             expect(body).to.be.an('object')
                         })
-                    });
-                    it('returns 200 and an article object by ID, with additional key of comment_count', () => {
-                        return request(app)
+                });
+                it('GET returns 200 and an article object by ID, with additional key of comment_count', () => {
+                    return request(app)
                         .get('/api/articles/1')
                         .expect(200)
-                        .then(({body}) => {
+                        .then(({ body }) => {
                             expect(body.article).to.contain.keys('comment_count')
                         });
-                    });
-                    it('ERROR, returns 404 article not found when no article found', () => {
-                        return request(app)
+                });
+                it('GET ERROR, returns 404 article not found when no article found', () => {
+                    return request(app)
                         .get('/api/articles/456')
                         .expect(404)
-                        .then(({body}) => {
+                        .then(({ body }) => {
                             expect(body.msg).to.equal('Article not found')
                         });
-                    });
-                    it('ERROR, returns 400 bad request when given invalid article ID', () => {
-                        return request(app)
+                });
+                it('GET ERROR, returns 400 bad request when given invalid article ID', () => {
+                    return request(app)
                         .get('/api/articles/badinput')
                         .expect(400)
-                        .then(({body}) => {
+                        .then(({ body }) => {
                             expect(body.msg).to.equal('Bad request')
                         })
-                    });
+                });
+                it('PATCH returns 201 and the updated article', () => {
+                    return request(app)
+                    .patch('/api/articles/1')
+                    .send({inc_votes:45}) /* article 1 has 100 */ 
+                    .expect(201)
+                    .then(({body}) => {
+                        expect(body).to.be.an('object')
+                        expect(body.article.votes).to.equal(145)
+                    })
                 });
             });
         });
+
     });
 });

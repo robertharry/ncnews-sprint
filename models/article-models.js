@@ -14,3 +14,12 @@ exports.selectArticle = (article_id) => {
         } else return article
     })
 };
+
+exports.updateArticle = (article_id, body) => {
+    return connection
+    .select('*')
+    .from('articles')
+    .where('article_id', article_id)
+    .increment('votes', body.inc_votes)
+    .returning('*')
+}
