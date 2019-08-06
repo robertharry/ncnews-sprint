@@ -20,6 +20,17 @@ describe('/API', () => {
 
                 });
         });
+        it('INVALID METHODS returns 405 and method not allowed', () => {
+            const invalidMethods = ['patch', 'post', 'delete'];
+            const methodPromises = invalidMethods.map((method) => {
+                return request(app)[method]('/api/topics')
+                .expect(405)
+                    .then(({body: {msg}}) => {
+                        expect(msg).to.equal('method not allowed')
+                    });
+            });
+            return Promise.all(methodPromises)
+        });
     });
     describe('/USERS/:username', () => {
         it('returns 200 and object with username, avatar_url and name', () => {
