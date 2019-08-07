@@ -11,7 +11,12 @@ describe('APP', () => {
     describe('/API', () => {
         beforeEach(() => connection.seed.run());
         after(() => connection.destroy());
-        describe('API router ERRORs', () => {
+        it('GET returns JSON with all available endpoints on API', () => {
+            return request(app)
+            .get('/api')
+            .expect(200)
+        });
+        describe('API ROUTER ERRORS', () => {
             it('INVALID ROUTE returns 405 if given invalid path', () => {
                 return request(app)
                     .get('/api/invalid_route')
@@ -360,8 +365,11 @@ describe('APP', () => {
                             expect(body.msg).to.equal('Topic not found')
                         });
                 });
+                xit('POST returns 201 and object of', () => {
+                    
+                });
                 it('INVALID METHODS returns 405 and method not allowed', () => {
-                    const invalidMethods = ['patch', 'post', 'delete'];
+                    const invalidMethods = ['patch', 'delete'];
                     const methodPromises = invalidMethods.map((method) => {
                         return request(app)[method]('/api/articles')
                             .expect(405)
