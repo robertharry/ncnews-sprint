@@ -21,7 +21,7 @@ exports.updateArticle = (article_id, body) => {
     .select('*')
     .from('articles')
     .where('article_id', article_id)
-    .increment('votes', body.inc_votes)
+    .increment('votes', body.inc_votes || 0)
     .returning('*')
     .then(article => {
         if(!article.length){
@@ -53,6 +53,13 @@ exports.selectCommentsByArticleId = (article_id, sort_by, order) => {
     .orderBy(sort_by || 'created_at', order || 'desc')
     .where('comments.article_id', article_id)
     .returning('*')
+    //in here
+    .then(article => {
+        if(!article.length){
+            return Promise.reject({status: 404, msg: 'Article not found'})
+        } else return article
+    })
+
 };
 
 exports.selectAllArticles = (sort_by, order, author, topic) => {

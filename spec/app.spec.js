@@ -11,15 +11,25 @@ describe('APP', () => {
     describe('/API', () => {
         beforeEach(() => connection.seed.run());
         after(() => connection.destroy());
-        describe('INVALID path on API router', () => {
-            it('returns invalid route if given invalid path', () => {
+        describe('API router ERRORs', () => {
+            it('INVALID ROUTE returns 405 if given invalid path', () => {
                 return request(app)
                     .get('/api/invalid_route')
-                    .expect(404)
+                    .expect(405)
                     .then(({ body }) => {
-                        expect(body.msg).to.equal('Path does not exist')
+                        expect(body.msg).to.equal('Method not allowed!')
                     })
-
+            });
+            it('INVALID METHODS returns 405 and method not allowed', () => {
+                const invalidMethods = ['get', 'patch', 'post', 'delete'];
+                const methodPromises = invalidMethods.map((method) => {
+                    return request(app)[method]('/api')
+                        .expect(405)
+                        .then(({ body: { msg } }) => {
+                            expect(msg).to.equal('Method not allowed!')
+                        });
+                });
+                return Promise.all(methodPromises)
             });
         });
         describe('/TOPICS', () => {
@@ -115,7 +125,7 @@ describe('APP', () => {
                     return request(app)
                         .patch('/api/articles/1')
                         .send({ inc_votes: 45 }) /* article 1 has 100 */
-                        .expect(201)
+                        .expect(200)
                         .then(({ body }) => {
                             expect(body).to.be.an('object')
                             expect(body.article.votes).to.equal(145)
@@ -130,13 +140,13 @@ describe('APP', () => {
                             expect(body.msg).to.equal('Article not found')
                         });
                 });
-                it('GET ERROR, returns 400 bad request when given invalid article ID', () => {
+                it('PATCH ERROR, ignores request when given bad data, and returns original article', () => {
                     return request(app)
-                        .get('/api/articles/badinput')
-                        .send({ inc_votes: 45 })
-                        .expect(400)
+                        .patch('/api/articles/1')
+                        .send({})
+                        .expect(200)
                         .then(({ body }) => {
-                            expect(body.msg).to.equal('Bad request')
+                            expect(body.article.votes).to.equal(100) // which is the original amount
                         })
                 });
                 it('INVALID METHODS returns 405 and method not allowed', () => {
@@ -162,11 +172,11 @@ describe('APP', () => {
                             expect(body.comment).to.have.keys('comment_id', 'author', 'article_id', 'votes', 'created_at', 'body')
                         })
                 });
-                it('POST ERROR returns 400 not found in table when given article ID that is not found', () => {
+                it('POST ERROR returns 404 not found in table when given article ID that is not found', () => {
                     return request(app)
                         .post('/api/articles/345/comments')
                         .send({ username: 'butter_bridge', body: 'Here is my comment for this article' })
-                        .expect(400)
+                        .expect(404)
                         .then(({ body }) => {
                             expect(body.msg).to.equal('Not found in table')
                         });
@@ -182,11 +192,20 @@ describe('APP', () => {
                 });
                 it('POST ERROR returns 400 Bad request when given bad input info', () => {
                     return request(app)
-                        .post('/api/articles/invalidID/comments')
+                        .post('/api/articles/1/comments')
                         .send({ userInvalid: 'butter_bridge', bodyInv: 'Here is my comment for this article' })
                         .expect(400)
                         .then(({ body }) => {
-                            expect(body.msg).to.equal('Bad request')
+                            expect(body.msg).to.equal('Invalid input')
+                        });
+                });
+                it('POST ERROR returns 400 when given incomplete data to create new comment', () => {
+                    return request(app)
+                        .post('/api/articles/1/comments')
+                        .send({ username: '', })
+                        .expect(400)
+                        .then(({ body }) => {
+                            expect(body.msg).to.equal('Invalid input')
                         });
                 });
                 it('GET returns 200 and an array of comments for given article id', () => {
@@ -196,6 +215,14 @@ describe('APP', () => {
                         .then(({ body }) => {
                             expect(body.comments).to.be.an('array')
                             expect(body.comments[0]).to.have.keys('comment_id', 'author', 'created_at', 'votes', 'body')
+                        })
+                });
+                it('GET ERROR, returns 404 when given article ID that does not exist', () => {
+                    return request(app)
+                        .get('/api/articles/567/comments')
+                        .expect(404)
+                        .then(({ body }) => {
+                            expect(body.msg).to.equal('Article not found')
                         })
                 });
                 it('GET returns 200 and sorts by DEFAULT to created_at', () => {
@@ -352,10 +379,19 @@ describe('APP', () => {
                     return request(app)
                         .patch('/api/comments/1')
                         .send({ inc_votes: 10 }) //article 1 has 16 votes by default
-                        .expect(201)
+                        .expect(200)
                         .then(({ body }) => {
                             expect(body.comment).to.be.an('object')
                             expect(body.comment.votes).to.equal(26)
+                        })
+                });
+                it('PATCH returns 200 with no increment to votes when passed a patch with not "inc_votes" provided', () => {
+                    return request(app)
+                        .patch('/api/comments/1')
+                        .send({}) //article 1 has 16 votes by default
+                        .expect(200)
+                        .then(({ body }) => {
+                            expect(body.comment.votes).to.equal(16)
                         })
                 });
                 it('PATCH ERROR returns 404 not found when given non-existent comment_id', () => {
@@ -378,8 +414,13 @@ describe('APP', () => {
                 });
                 it('DELETE returns status 204 and deletes comment by given ID', () => {
                     return request(app)
-                        .delete('/api/comments/1')
+                        .delete('/api/comments/2')
                         .expect(204)
+                });
+                it('DELETE ERROR, returns 404 when given valid comment_id that does not exist', () => {
+                    return request(app)
+                        .delete('/api/comments/456')
+                        .expect(404)
                 });
                 it('DELETE ERROR, returns 400 Bad request if given ID in bad format', () => {
                     return request(app)
