@@ -1,3 +1,6 @@
+exports.pathError = (req, res, next) => {
+    res.status(404).send({msg: 'Path does not exist'})
+}
 
 exports.send405Error = (req, res, next) => {
     res.status(405).send({msg: 'Method not allowed!'})

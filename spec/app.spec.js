@@ -11,6 +11,17 @@ describe('APP', () => {
     describe('/API', () => {
         beforeEach(() => connection.seed.run());
         after(() => connection.destroy());
+        describe('INVALID path on API router', () => {
+            it('returns invalid route if given invalid path', () => {
+                return request(app)
+                    .get('/api/invalid_route')
+                    .expect(404)
+                    .then(({ body }) => {
+                        expect(body.msg).to.equal('Path does not exist')
+                    })
+
+            });
+        });
         describe('/TOPICS', () => {
             it('GET return status 200 and array of topic objects', () => {
                 return request(app)
@@ -143,89 +154,89 @@ describe('APP', () => {
             describe('/:article_id/comments', () => {
                 it('POST inserts a new comment and returns the posted comment', () => {
                     return request(app)
-                    .post('/api/articles/1/comments')
-                    .send({username: 'butter_bridge', body: 'Here is my comment for this article'})
-                    .expect(201)
-                    .then(({body}) => {
-                        expect(body.comment).to.be.an('object')
-                        expect(body.comment).to.have.keys('comment_id', 'author', 'article_id', 'votes', 'created_at', 'body')
-                    })
+                        .post('/api/articles/1/comments')
+                        .send({ username: 'butter_bridge', body: 'Here is my comment for this article' })
+                        .expect(201)
+                        .then(({ body }) => {
+                            expect(body.comment).to.be.an('object')
+                            expect(body.comment).to.have.keys('comment_id', 'author', 'article_id', 'votes', 'created_at', 'body')
+                        })
                 });
                 it('POST ERROR returns 400 not found in table when given article ID that is not found', () => {
                     return request(app)
-                    .post('/api/articles/345/comments')
-                    .send({username: 'butter_bridge', body: 'Here is my comment for this article'})
-                    .expect(400)
-                    .then(({ body }) => {
-                        expect(body.msg).to.equal('Not found in table')
-                    });
+                        .post('/api/articles/345/comments')
+                        .send({ username: 'butter_bridge', body: 'Here is my comment for this article' })
+                        .expect(400)
+                        .then(({ body }) => {
+                            expect(body.msg).to.equal('Not found in table')
+                        });
                 });
                 it('POST ERROR returns 400 Bad request when given invalid article id', () => {
                     return request(app)
-                    .post('/api/articles/invalidID/comments')
-                    .send({username: 'butter_bridge', body: 'Here is my comment for this article'})
-                    .expect(400)
-                    .then(({ body }) => {
-                        expect(body.msg).to.equal('Bad request')
-                    });
+                        .post('/api/articles/invalidID/comments')
+                        .send({ username: 'butter_bridge', body: 'Here is my comment for this article' })
+                        .expect(400)
+                        .then(({ body }) => {
+                            expect(body.msg).to.equal('Bad request')
+                        });
                 });
                 it('POST ERROR returns 400 Bad request when given bad input info', () => {
                     return request(app)
-                    .post('/api/articles/invalidID/comments')
-                    .send({userInvalid: 'butter_bridge', bodyInv: 'Here is my comment for this article'})
-                    .expect(400)
-                    .then(({ body }) => {
-                        expect(body.msg).to.equal('Bad request')
-                    });
+                        .post('/api/articles/invalidID/comments')
+                        .send({ userInvalid: 'butter_bridge', bodyInv: 'Here is my comment for this article' })
+                        .expect(400)
+                        .then(({ body }) => {
+                            expect(body.msg).to.equal('Bad request')
+                        });
                 });
                 it('GET returns 200 and an array of comments for given article id', () => {
-                   return request(app)
-                   .get('/api/articles/1/comments') 
-                   .expect(200)
-                   .then(({body}) => {
-                       expect(body.comments).to.be.an('array')
-                       expect(body.comments[0]).to.have.keys('comment_id', 'author', 'created_at', 'votes', 'body')
-                   })
+                    return request(app)
+                        .get('/api/articles/1/comments')
+                        .expect(200)
+                        .then(({ body }) => {
+                            expect(body.comments).to.be.an('array')
+                            expect(body.comments[0]).to.have.keys('comment_id', 'author', 'created_at', 'votes', 'body')
+                        })
                 });
                 it('GET returns 200 and sorts by DEFAULT to created_at', () => {
                     return request(app)
-                    .get('/api/articles/1/comments') 
-                    .expect(200)
-                    .then(({body}) => {
-                        expect(body.comments).to.be.sortedBy('created_at', {descending: true})
-                    })
+                        .get('/api/articles/1/comments')
+                        .expect(200)
+                        .then(({ body }) => {
+                            expect(body.comments).to.be.sortedBy('created_at', { descending: true })
+                        })
                 });
                 it('GET returns 200 and accepts sort_by query', () => {
                     return request(app)
-                    .get('/api/articles/1/comments?sort_by=author') 
-                    .expect(200)
-                    .then(({body}) => {
-                        expect(body.comments).to.be.sortedBy('author', {descending: true})
-                    })
+                        .get('/api/articles/1/comments?sort_by=author')
+                        .expect(200)
+                        .then(({ body }) => {
+                            expect(body.comments).to.be.sortedBy('author', { descending: true })
+                        })
                 });
                 it('GET returns 200 and DEFAULT sorts to desc', () => {
                     return request(app)
-                    .get('/api/articles/1/comments') 
-                    .expect(200)
-                    .then(({body}) => {
-                        expect(body.comments).to.be.sortedBy('created_at', {descending: true})
-                    })
+                        .get('/api/articles/1/comments')
+                        .expect(200)
+                        .then(({ body }) => {
+                            expect(body.comments).to.be.sortedBy('created_at', { descending: true })
+                        })
                 });
                 it('GET returns 200 and accepts query of order to change sort to asc', () => {
                     return request(app)
-                    .get('/api/articles/1/comments?order=asc') 
-                    .expect(200)
-                    .then(({body}) => {
-                        expect(body.comments).to.be.sortedBy('created_at')
-                    })
+                        .get('/api/articles/1/comments?order=asc')
+                        .expect(200)
+                        .then(({ body }) => {
+                            expect(body.comments).to.be.sortedBy('created_at')
+                        })
                 });
                 it('GET ERROR and 400 Bad request when bad sort_by query given', () => {
                     return request(app)
-                    .get('/api/articles/1/comments?sort_by=badrequest') 
-                    .expect(400)
-                    .then(({body}) => {
-                        expect(body.msg).to.equal('Cannot sort by column that does not exist')
-                    })
+                        .get('/api/articles/1/comments?sort_by=badrequest')
+                        .expect(400)
+                        .then(({ body }) => {
+                            expect(body.msg).to.equal('Cannot sort by column that does not exist')
+                        })
                 });
                 it('INVALID METHODS returns 405 and method not allowed', () => {
                     const invalidMethods = ['patch', 'delete'];
@@ -242,85 +253,85 @@ describe('APP', () => {
             describe('/', () => {
                 it('GET returns 200 and array of articles with specific keys', () => {
                     return request(app)
-                    .get('/api/articles')
-                    .expect(200)
-                    .then(({body}) => {
-                        expect(body.articles).to.be.an('array')
-                        expect(body.articles[0]).to.contain.keys('author', 'title', 'article_id', 'topic', 'created_at', 'votes')
-                    })
+                        .get('/api/articles')
+                        .expect(200)
+                        .then(({ body }) => {
+                            expect(body.articles).to.be.an('array')
+                            expect(body.articles[0]).to.contain.keys('author', 'title', 'article_id', 'topic', 'created_at', 'votes')
+                        })
                 });
                 it('GET returns 200 and has new key of comment_count added with total number of comments as a value', () => {
                     return request(app)
-                    .get('/api/articles')
-                    .expect(200)
-                    .then(({body}) => {
-                        expect(body.articles[0]).to.contain.keys('comment_count')
-                    })
+                        .get('/api/articles')
+                        .expect(200)
+                        .then(({ body }) => {
+                            expect(body.articles[0]).to.contain.keys('comment_count')
+                        })
                 });
                 it('GET returns 200 and accepts sort_by query DEFAULTING to date', () => {
                     return request(app)
-                    .get('/api/articles')
-                    .expect(200)
-                    .then(({body}) => {
-                        expect(body.articles).to.be.sortedBy('created_at', {descending: true})
-                    })
+                        .get('/api/articles')
+                        .expect(200)
+                        .then(({ body }) => {
+                            expect(body.articles).to.be.sortedBy('created_at', { descending: true })
+                        })
                 });
                 it('GET returns 200 and accepts sort_by query author', () => {
                     return request(app)
-                    .get('/api/articles?sort_by=author')
-                    .expect(200)
-                    .then(({body}) => {
-                        expect(body.articles).to.be.sortedBy('author', {descending: true})
-                    })
+                        .get('/api/articles?sort_by=author')
+                        .expect(200)
+                        .then(({ body }) => {
+                            expect(body.articles).to.be.sortedBy('author', { descending: true })
+                        })
                 });
                 it('GET returns 200 and has DEFAULT sort order of desc', () => {
                     return request(app)
-                    .get('/api/articles')
-                    .expect(200)
-                    .then(({body}) => {
-                        expect(body.articles).to.be.sortedBy('created_at', {descending: true})
-                    })
+                        .get('/api/articles')
+                        .expect(200)
+                        .then(({ body }) => {
+                            expect(body.articles).to.be.sortedBy('created_at', { descending: true })
+                        })
                 });
                 it('GET returns 200 and accepts an order query that can change the sort order to asc', () => {
                     return request(app)
-                    .get('/api/articles?order=asc')
-                    .expect(200)
-                    .then(({body}) => {
-                        expect(body.articles).to.be.sortedBy('created_at')
-                    })
+                        .get('/api/articles?order=asc')
+                        .expect(200)
+                        .then(({ body }) => {
+                            expect(body.articles).to.be.sortedBy('created_at')
+                        })
                 });
                 it('GET returns 200 and accepts author query that filters results by specified username', () => {
                     return request(app)
-                    .get('/api/articles?author=butter_bridge')
-                    .expect(200)
-                    .then(({body}) => {
-                        expect(body.articles[0].author).to.equal('butter_bridge')
-                        expect(body.articles[1].author).to.equal('butter_bridge')
-                    }); //how to check all authors?? DEFAULT pass implicit as previous tests unaffected
+                        .get('/api/articles?author=butter_bridge')
+                        .expect(200)
+                        .then(({ body }) => {
+                            expect(body.articles[0].author).to.equal('butter_bridge')
+                            expect(body.articles[1].author).to.equal('butter_bridge')
+                        }); //how to check all authors?? DEFAULT pass implicit as previous tests unaffected
                 });
                 it('GET ERROR returns 404 and Author not found where invalid username given', () => {
                     return request(app)
-                    .get('/api/articles?author=unknown_author')
-                    .expect(404)
-                    .then(({body}) => {
-                        expect(body.msg).to.equal('Author not found')
-                    }); 
+                        .get('/api/articles?author=unknown_author')
+                        .expect(404)
+                        .then(({ body }) => {
+                            expect(body.msg).to.equal('Author not found')
+                        });
                 });
                 it('GET returns 200 and accepts topic filter query that filters results by topic', () => {
                     return request(app)
-                    .get('/api/articles?topic=cats')
-                    .expect(200)
-                    .then(({body}) => {
-                        expect(body.articles[0].topic).to.equal('cats')
-                    })
+                        .get('/api/articles?topic=cats')
+                        .expect(200)
+                        .then(({ body }) => {
+                            expect(body.articles[0].topic).to.equal('cats')
+                        })
                 });
                 it('GET ERROR returns 404 and Topic not found where invalid topic given', () => {
                     return request(app)
-                    .get('/api/articles?topic=unknown_topic')
-                    .expect(404)
-                    .then(({body}) => {
-                        expect(body.msg).to.equal('Topic not found')
-                    }); 
+                        .get('/api/articles?topic=unknown_topic')
+                        .expect(404)
+                        .then(({ body }) => {
+                            expect(body.msg).to.equal('Topic not found')
+                        });
                 });
                 it('INVALID METHODS returns 405 and method not allowed', () => {
                     const invalidMethods = ['patch', 'post', 'delete'];
@@ -337,10 +348,59 @@ describe('APP', () => {
         });
         describe('/COMMENTS', () => {
             describe('/:comment_id', () => {
-                it('PATCH', () => {
-                
+                it('PATCH takes an object and updates vote property of given comment_id', () => {
+                    return request(app)
+                        .patch('/api/comments/1')
+                        .send({ inc_votes: 10 }) //article 1 has 16 votes by default
+                        .expect(201)
+                        .then(({ body }) => {
+                            expect(body.comment).to.be.an('object')
+                            expect(body.comment.votes).to.equal(26)
+                        })
+                });
+                it('PATCH ERROR returns 404 not found when given non-existent comment_id', () => {
+                    return request(app)
+                        .patch('/api/comments/345')
+                        .send({ inc_votes: 10 })
+                        .expect(404)
+                        .then(({ body }) => {
+                            expect(body.msg).to.eql('Comment not found')
+                        })
+                });
+                it('PATCH ERROR returns 400 Bad request when given bad format comment_id', () => {
+                    return request(app)
+                        .patch('/api/comments/bad_format')
+                        .send({ inc_votes: 10 })
+                        .expect(400)
+                        .then(({ body }) => {
+                            expect(body.msg).to.eql('Bad request')
+                        })
+                });
+                it('DELETE returns status 204 and deletes comment by given ID', () => {
+                    return request(app)
+                        .delete('/api/comments/1')
+                        .expect(204)
+                });
+                it('DELETE ERROR, returns 400 Bad request if given ID in bad format', () => {
+                    return request(app)
+                        .delete('/api/comments/bad_id')
+                        .expect(400)
+                        .then(({ body }) => {
+                            expect(body.msg).to.equal('Bad request')
+                        })
+                });
+                it('INVALID METHODS returns 405 and method not allowed', () => {
+                    const invalidMethods = ['get', 'post'];
+                    const methodPromises = invalidMethods.map((method) => {
+                        return request(app)[method]('/api/comments/:comment_id')
+                            .expect(405)
+                            .then(({ body: { msg } }) => {
+                                expect(msg).to.equal('Method not allowed!')
+                            });
+                    });
+                    return Promise.all(methodPromises)
+                });
             });
-        });
         });
     });
 });
