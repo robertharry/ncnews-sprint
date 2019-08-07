@@ -40,9 +40,10 @@ exports.getCommentsByArticleId = (req, res, next) => {
 };
 
 exports.getAllArticles = (req, res, next) => {
-    const {sort_by, order} = req.query
-    selectAllArticles(sort_by, order)
+    const {sort_by, order, author, topic} = req.query
+    selectAllArticles(sort_by, order, author, topic)
     .then(articles => {
+       //console.log(articles)
         res.status(200).send({articles})
     })
     .catch(next)

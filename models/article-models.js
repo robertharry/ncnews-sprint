@@ -55,7 +55,7 @@ exports.selectCommentsByArticleId = (article_id, sort_by, order) => {
     .returning('*')
 };
 
-exports.selectAllArticles = (sort_by, order) => {
+exports.selectAllArticles = (sort_by, order, author, topic) => {
     return connection 
     .select('articles.author', 'articles.title', 'articles.article_id', 'articles.topic', 'articles.created_at', 'articles.votes')
     .from('articles')
@@ -63,5 +63,18 @@ exports.selectAllArticles = (sort_by, order) => {
     .leftJoin('comments', 'articles.article_id', 'comments.article_id')
     .groupBy('articles.article_id')
     .orderBy(sort_by || 'created_at', order || 'desc')
-    
+    .modify((query) => {
+        if(author){
+            query.where('articles.author', author)
+        }if(topic) {
+            query.where('articles.topic', topic)
+        }
+    })
+    .then(articles => {
+        if(!articles.length && author){
+            return Promise.reject({status: 404, msg: 'Author not found'})
+        } else if(!articles.length && topic){
+            return Promise.reject({status: 404, msg: 'Topic not found'})
+        }return articles
+    })
 };

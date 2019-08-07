@@ -128,6 +128,17 @@ describe('APP', () => {
                             expect(body.msg).to.equal('Bad request')
                         })
                 });
+                it('INVALID METHODS returns 405 and method not allowed', () => {
+                    const invalidMethods = ['post', 'delete'];
+                    const methodPromises = invalidMethods.map((method) => {
+                        return request(app)[method]('/api/articles/:article_id')
+                            .expect(405)
+                            .then(({ body: { msg } }) => {
+                                expect(msg).to.equal('Method not allowed!')
+                            });
+                    });
+                    return Promise.all(methodPromises)
+                });
             });
             describe('/:article_id/comments', () => {
                 it('POST inserts a new comment and returns the posted comment', () => {
@@ -216,8 +227,19 @@ describe('APP', () => {
                         expect(body.msg).to.equal('Cannot sort by column that does not exist')
                     })
                 });
+                it('INVALID METHODS returns 405 and method not allowed', () => {
+                    const invalidMethods = ['patch', 'delete'];
+                    const methodPromises = invalidMethods.map((method) => {
+                        return request(app)[method]('/api/articles/:article_id/comments')
+                            .expect(405)
+                            .then(({ body: { msg } }) => {
+                                expect(msg).to.equal('Method not allowed!')
+                            });
+                    });
+                    return Promise.all(methodPromises)
+                });
             });
-            describe.only('/', () => {
+            describe('/', () => {
                 it('GET returns 200 and array of articles with specific keys', () => {
                     return request(app)
                     .get('/api/articles')
@@ -266,8 +288,59 @@ describe('APP', () => {
                     .then(({body}) => {
                         expect(body.articles).to.be.sortedBy('created_at')
                     })
-                }) /*author and topic on GET/api/articles to come and errors */
+                });
+                it('GET returns 200 and accepts author query that filters results by specified username', () => {
+                    return request(app)
+                    .get('/api/articles?author=butter_bridge')
+                    .expect(200)
+                    .then(({body}) => {
+                        expect(body.articles[0].author).to.equal('butter_bridge')
+                        expect(body.articles[1].author).to.equal('butter_bridge')
+                    }); //how to check all authors?? DEFAULT pass implicit as previous tests unaffected
+                });
+                it('GET ERROR returns 404 and Author not found where invalid username given', () => {
+                    return request(app)
+                    .get('/api/articles?author=unknown_author')
+                    .expect(404)
+                    .then(({body}) => {
+                        expect(body.msg).to.equal('Author not found')
+                    }); 
+                });
+                it('GET returns 200 and accepts topic filter query that filters results by topic', () => {
+                    return request(app)
+                    .get('/api/articles?topic=cats')
+                    .expect(200)
+                    .then(({body}) => {
+                        expect(body.articles[0].topic).to.equal('cats')
+                    })
+                });
+                it('GET ERROR returns 404 and Topic not found where invalid topic given', () => {
+                    return request(app)
+                    .get('/api/articles?topic=unknown_topic')
+                    .expect(404)
+                    .then(({body}) => {
+                        expect(body.msg).to.equal('Topic not found')
+                    }); 
+                });
+                it('INVALID METHODS returns 405 and method not allowed', () => {
+                    const invalidMethods = ['patch', 'post', 'delete'];
+                    const methodPromises = invalidMethods.map((method) => {
+                        return request(app)[method]('/api/articles')
+                            .expect(405)
+                            .then(({ body: { msg } }) => {
+                                expect(msg).to.equal('Method not allowed!')
+                            });
+                    });
+                    return Promise.all(methodPromises)
+                });
             });
+        });
+        describe('/COMMENTS', () => {
+            describe('/:comment_id', () => {
+                it('PATCH', () => {
+                
+            });
+        });
         });
     });
 });

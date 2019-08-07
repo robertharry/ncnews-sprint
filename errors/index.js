@@ -4,12 +4,14 @@ exports.send405Error = (req, res, next) => {
 };
 
 exports.customErrors = (err, req, res, next) => {
+    //console.log(err.msg)
     if (err.status) {
         res.status(err.status).send({ msg: err.msg })
     } else next(err);
 };
 
 exports.psqlErrors = (err, req, res, next) => {
+    //console.log(err)
     const errCodes = {
         '22P02': 'Bad request',
         '23503': 'Not found in table',
