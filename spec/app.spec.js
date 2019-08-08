@@ -11,10 +11,13 @@ describe('APP', () => {
     describe('/API', () => {
         beforeEach(() => connection.seed.run());
         after(() => connection.destroy());
-        it('GET returns JSON with all available endpoints on API', () => {
+        it.only('GET returns JSON with all available endpoints on API', () => {
             return request(app)
             .get('/api')
             .expect(200)
+            .then(({body}) => {
+                console.log(body)
+            })
         });
         describe('API ROUTER ERRORS', () => {
             it('INVALID ROUTE returns 405 if given invalid path', () => {
@@ -222,12 +225,28 @@ describe('APP', () => {
                             expect(body.comments[0]).to.have.keys('comment_id', 'author', 'created_at', 'votes', 'body')
                         })
                 });
+                it('GET returns 200 and empty array when article id has no comments', () => {
+                    return request(app)
+                        .get('/api/articles/2/comments')
+                        .expect(200)
+                        .then(({body}) => {
+                            expect(body.comments).to.be.an('array')
+                        })
+                });
                 it('GET ERROR, returns 404 when given article ID that does not exist', () => {
                     return request(app)
                         .get('/api/articles/567/comments')
                         .expect(404)
                         .then(({ body }) => {
                             expect(body.msg).to.equal('Article not found')
+                        })
+                });
+                it('GET ERROR, returns 400 bad request when given invalid article id', () => {
+                    return request(app)
+                        .get('/api/articles/badID/comments')
+                        .expect(400)
+                        .then(({ body }) => {
+                            expect(body.msg).to.equal('Bad request')
                         })
                 });
                 it('GET returns 200 and sorts by DEFAULT to created_at', () => {
@@ -365,8 +384,46 @@ describe('APP', () => {
                             expect(body.msg).to.equal('Topic not found')
                         });
                 });
-                xit('POST returns 201 and object of', () => {
-                    
+                it('GET DEFAULTS the number of responses to 10', () => {
+                    return request(app)
+                    .get('/api/articles')
+                    .expect(200)
+                    .then(({body}) => {
+                        expect(body.articles.length).to.equal(10)
+                    })
+                });
+                it('GET accepts a limit query to vary the number of responses', () => {
+                    return request(app)
+                    .get('/api/articles?limit=5')
+                    .expect(200)
+                    .then(({body}) => {
+                        expect(body.articles.length).to.equal(5)
+                    })
+                });// no error tests as covered in default limit test
+                it('GET takes a "p" page query that specifies start page', () => {
+                    return request(app)
+                    .get('/api/articles?p=2')
+                    .expect(200)
+                    .then(({body}) => {
+                        expect(body.articles.length).to.equal(2)
+                    })
+                });
+                it('GET ensures the "p" argument takes the limit into account', () => {
+                    return request(app)
+                    .get('/api/articles?limit=5&p=2')
+                    .expect(200)
+                    .then(({body}) => {
+                        expect(body.articles.length).to.equal(5)
+                    })
+                }); //again no further tests as default status is set
+                xit('GET adds total count that provides total number of articles ignoring page limit', () => {
+                    return request(app)
+                    .get('/api/articles')
+                    .expect(200)
+                    .then(({body}) => {
+                        expect(body).to.have.keys('articles', 'total_count')
+                        expect(body.total_count).to.equal(12)
+                    })
                 });
                 it('INVALID METHODS returns 405 and method not allowed', () => {
                     const invalidMethods = ['patch', 'delete'];
