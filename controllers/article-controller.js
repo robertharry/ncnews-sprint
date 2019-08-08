@@ -44,9 +44,14 @@ exports.getCommentsByArticleId = (req, res, next) => {
 
 exports.getAllArticles = (req, res, next) => {
     const { sort_by, order, author, topic, limit, p } = req.query
+    let total = 0
+    selectAllArticles(sort_by, order, author, topic, 1000 )
+    .then(articles1 => {
+       total += articles1.length
+    })
     selectAllArticles(sort_by, order, author, topic, limit, p)
         .then(articles => {
-            res.status(200).send({ articles: articles, total_count: articles.length })
+            res.status(200).send({ articles: articles, total_count: total })
         })
         .catch(next)
 };

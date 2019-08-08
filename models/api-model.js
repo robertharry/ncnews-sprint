@@ -1,7 +1,10 @@
 const fs = require('fs')
 
-exports.fetchEndpoints = () => {
-    fs.readFile('../endpoints.json', utf8, {
-        
-    })
+exports.fetchEndpoints = (cb) => {
+   fs.readFile('./endpoints.json', utf8, (err, data) => {
+       if(err) console.log(err)
+       else console.log(data)
+   })
+    
+    
 }

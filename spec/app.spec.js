@@ -11,7 +11,7 @@ describe('APP', () => {
     describe('/API', () => {
         beforeEach(() => connection.seed.run());
         after(() => connection.destroy());
-        it.only('GET returns JSON with all available endpoints on API', () => {
+        xit('GET returns JSON with all available endpoints on API', () => {
             return request(app)
             .get('/api')
             .expect(200)
@@ -416,11 +416,12 @@ describe('APP', () => {
                         expect(body.articles.length).to.equal(5)
                     })
                 }); //again no further tests as default status is set
-                xit('GET adds total count that provides total number of articles ignoring page limit', () => {
+                it.only('GET adds total count that provides total number of articles ignoring page limit', () => {
                     return request(app)
                     .get('/api/articles')
                     .expect(200)
                     .then(({body}) => {
+                        console.log(body)
                         expect(body).to.have.keys('articles', 'total_count')
                         expect(body.total_count).to.equal(12)
                     })
