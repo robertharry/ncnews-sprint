@@ -40,7 +40,7 @@ exports.insertComment = (article_id, body) => {
         .returning('*')
 };
 
-exports.selectCommentsByArticleId = (article_id, sort_by, order) => {
+exports.selectCommentsByArticleId = (article_id, sort_by, order, limit = 10, p) => {
     return connection
         .select('comments.comment_id',
             'comments.author',
@@ -52,12 +52,9 @@ exports.selectCommentsByArticleId = (article_id, sort_by, order) => {
         .groupBy('comments.comment_id')
         .orderBy(sort_by || 'created_at', order || 'desc')
         .where('comments.article_id', article_id)
+        .limit(limit)
+        .offset((p*limit)-limit)
         .returning('*')
-        // .then(comments => {
-        //     if (!comments.length) {
-        //         return Promise.reject({ status: 404, msg: 'Article not found' })
-        //     } else return comments
-        // })
 };
 
 exports.selectAllArticles = (sort_by, order, author, topic, limit = 10, p) => {

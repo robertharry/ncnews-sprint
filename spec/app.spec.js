@@ -289,6 +289,38 @@ describe('APP', () => {
                             expect(body.msg).to.equal('Cannot sort by column that does not exist')
                         })
                 });
+                it.only('GET accepts a limit query with a DEFAULT of 10', () => {
+                    return request(app)
+                        .get('/api/articles/1/comments')
+                        .expect(200)
+                        .then(({body}) => {
+                            expect(body.comments.length).to.equal(10)
+                        })
+                });
+                it.only('GET accepts a limit query of 5 and returns 5 comments in an array', () => {
+                    return request(app)
+                        .get('/api/articles/1/comments?limit=5')
+                        .expect(200)
+                        .then(({body}) => {
+                            expect(body.comments.length).to.equal(5)
+                        })
+                }); //no errors as limit defaults to 10 if no value
+                it.only('GET accepts a p query that specifies which page to start on', () => {
+                    return request(app)
+                        .get('/api/articles/1/comments?p=2')
+                        .expect(200)
+                        .then(({body}) => {
+                            expect(body.comments.length).to.equal(3)
+                        })
+                });
+                it.only('GET accepts a p query and takes into account the page limit', () => {
+                    return request(app)
+                        .get('/api/articles/1/comments?limit=5&p=2')
+                        .expect(200)
+                        .then(({body}) => {
+                            expect(body.comments.length).to.equal(5)
+                        })
+                });
                 it('INVALID METHODS returns 405 and method not allowed', () => {
                     const invalidMethods = ['patch', 'delete'];
                     const methodPromises = invalidMethods.map((method) => {
@@ -416,12 +448,11 @@ describe('APP', () => {
                         expect(body.articles.length).to.equal(5)
                     })
                 }); //again no further tests as default status is set
-                it.only('GET adds total count that provides total number of articles ignoring page limit', () => {
+                it('GET adds total count that provides total number of articles ignoring page limit', () => {
                     return request(app)
                     .get('/api/articles')
                     .expect(200)
                     .then(({body}) => {
-                        console.log(body)
                         expect(body).to.have.keys('articles', 'total_count')
                         expect(body.total_count).to.equal(12)
                     })

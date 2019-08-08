@@ -31,11 +31,11 @@ exports.postComment = (req, res, next) => {
 
 exports.getCommentsByArticleId = (req, res, next) => {
     const { article_id } = req.params
-    const { sort_by, order } = req.query
+    const { sort_by, order, limit, p } = req.query
     selectArticle(article_id)
         .then()
         .catch(next)
-    selectCommentsByArticleId(article_id, sort_by, order)
+    selectCommentsByArticleId(article_id, sort_by, order, limit, p)
         .then(comments => {
             res.status(200).send({ comments })
         })
@@ -48,10 +48,10 @@ exports.getAllArticles = (req, res, next) => {
     selectAllArticles(sort_by, order, author, topic, 1000 )
     .then(articles1 => {
        total += articles1.length
-    })
+    }).catch(next)
     selectAllArticles(sort_by, order, author, topic, limit, p)
         .then(articles => {
-            res.status(200).send({ articles: articles, total_count: total })
+            res.status(200).send({ total_count: total, articles: articles })
         })
         .catch(next)
 };
