@@ -11,6 +11,7 @@ apiRouter.use('/topics', topicsRouter);
 apiRouter.use('/users', usersRouter);
 apiRouter.use('/articles', articlesRouter);
 apiRouter.use('/comments', commentsRouter);
-apiRouter.use('/', send405Error);
+apiRouter.route('/').get(sendApiRoutes).all(send405Error);
+apiRouter.use('/*', send405Error)
 
 module.exports = apiRouter;
