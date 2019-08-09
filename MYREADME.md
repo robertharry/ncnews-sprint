@@ -4,34 +4,36 @@
 
 <h2>Getting started
 
-<h5>For a full list of endpoints, use GET /API/. THis will provide an overview of the available endpoints and actions that can be taken.
+<h5>For a full list of endpoints, use GET /API/. This will provide an overview of the available endpoints and actions that can be taken.
 
-<h2>A link to the Heroku hosted can be found here 
+<h2>A link to the Heroku hosted app can be found here 
 
-[Heroku](www.google.com)
+[Heroku App](https://robs-nc-news.herokuapp.com/)
 
 <h2>Prerequisites
 
+To clone the database to your local machine, use the GitHub URL - https://github.com/robertharry/ncnews-sprint.git .
+
 <h5>The dependencies for the API are as follows.
 
->express, knex, postgres
+>express ^4.17.1, knex ^7.19.1, postgres ^7.12.0
 
 <h5>To install these follow the code below
-
 
 ```javascript
 npm install express knex pg 
 ```
 
-<h2>Running the tests
-
-<h5>The tests in this case can be found in the **spec** folder. This folder includes the tests for the seeding of the database. To run the API tests run test, to run the utility function tests run test-utils.
+To perform the initial database setup, use
 
 ```javascript
-npm run test
-npm run test-utils
+npm run setup-dbs
 ```
-<h5>These tests test the funcitonality of the endpoints described earlier, and ensure errors are handled appropriately.
+You can then seed the database with
+```javascript
+npm run seed
+```
+This will insert the data into the database.
 
 <h2>Author
 

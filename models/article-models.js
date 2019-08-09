@@ -90,7 +90,7 @@ exports.removeArticleById = (article_id) => {
     .where('article_id', article_id)
     .del()
     .then(article =>{
-        if(article === 1){
+        if(article >= 1){
             return article
         } else return Promise.reject({status: 404, msg: 'Article not found'})
     })

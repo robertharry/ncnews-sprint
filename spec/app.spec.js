@@ -249,6 +249,7 @@ describe('APP', () => {
                         .expect(200)
                         .then(({body}) => {
                             expect(body.comments).to.be.an('array')
+                            expect(body.comments.length).to.equal(0)
                         })
                 });
                 it('GET ERROR, returns 404 when given article ID that does not exist', () => {
@@ -406,9 +407,10 @@ describe('APP', () => {
                         .get('/api/articles?author=butter_bridge')
                         .expect(200)
                         .then(({ body }) => {
-                            expect(body.articles[0].author).to.equal('butter_bridge')
-                            expect(body.articles[1].author).to.equal('butter_bridge')
-                        }); //how to check all authors?? DEFAULT pass implicit as previous tests unaffected
+                            expect(body.articles.every(article => {
+                             return  article.author === 'butter_bridge'
+                            })).to.be.true
+                        }); 
                 });
                 it('GET ERROR returns 404 and Author not found where invalid username given', () => {
                     return request(app)
@@ -423,7 +425,9 @@ describe('APP', () => {
                         .get('/api/articles?topic=cats')
                         .expect(200)
                         .then(({ body }) => {
-                            expect(body.articles[0].topic).to.equal('cats')
+                            expect(body.articles.every(article => {
+                                return article.topic === 'cats'
+                            })).to.be.true
                         })
                 });
                 it('GET ERROR returns 404 and Topic not found where invalid topic given', () => {
@@ -500,7 +504,7 @@ describe('APP', () => {
                             expect(body.comment.votes).to.equal(26)
                         })
                 });
-                it('PATCH returns 200 with no increment to votes when passed a patch with not "inc_votes" provided', () => {
+                it('PATCH returns 200 with no increment to votes when passed a patch with no "inc_votes" provided', () => {
                     return request(app)
                         .patch('/api/comments/1')
                         .send({}) //article 1 has 16 votes by default

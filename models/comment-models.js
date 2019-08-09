@@ -21,10 +21,8 @@ exports.removeComment = (comment_id) => {
         .where('comment_id', comment_id)
         .del()
         .then(comment => {
-            if (comment === 1) {
-                return comment
-            } else if (comment === 0) {
+            if (comment === 0) {
                 return Promise.reject({ status: 404, msg: 'Comment not found' })
-            }
+            } else return comment
         })
 }

@@ -13,8 +13,8 @@ exports.patchComment = (req, res, next) => {
 exports.deleteComment = (req, res, next) => {
     const {comment_id} = req.params;
     removeComment(comment_id)
-    .then(comment => {
+    .then(() => {
         res.sendStatus(204)
     })
     .catch(next)
-}
+};
