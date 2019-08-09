@@ -157,16 +157,34 @@ describe('APP', () => {
                             expect(body.article.votes).to.equal(100) // which is the original amount
                         })
                 });
+                it('DELETE returns 204 and removes article by ID, and associated comments', () => {
+                    return request(app)
+                    .delete('/api/articles/1')
+                    .expect(204)
+                });
+                it('DELETE ERROR returns 404 not found where article id does not exist', () => {
+                    return request(app)
+                    .delete('/api/articles/456')
+                    .expect(404)
+                    .then(({body}) => {
+                        expect(body.msg).to.equal('Article not found')
+                    })
+                });
+                it('DELETE ERROR returns 400 when given bad article id', () => {
+                    return request(app)
+                    .delete('/api/articles/badid')
+                    .expect(400)
+                    .then(({body}) => {
+                        expect(body.msg).to.equal('Bad request')
+                    })
+                });
                 it('INVALID METHODS returns 405 and method not allowed', () => {
-                    const invalidMethods = ['post', 'delete'];
-                    const methodPromises = invalidMethods.map((method) => {
-                        return request(app)[method]('/api/articles/:article_id')
-                            .expect(405)
-                            .then(({ body: { msg } }) => {
-                                expect(msg).to.equal('Method not allowed!')
-                            });
-                    });
-                    return Promise.all(methodPromises)
+                        return request(app)
+                        .post('/api/articles/:article_id')
+                        .expect(405)
+                        .then(({ body}) => {
+                            expect(body.msg).to.equal('Method not allowed!')
+                        });
                 });
             });
             describe('/:article_id/comments', () => {

@@ -6,6 +6,10 @@
 
 <h5>For a full list of endpoints, use GET /API/. THis will provide an overview of the available endpoints and actions that can be taken.
 
+<h2>A link to the Heroku hosted can be found here 
+
+[Heroku](www.google.com)
+
 <h2>Prerequisites
 
 <h5>The dependencies for the API are as follows.

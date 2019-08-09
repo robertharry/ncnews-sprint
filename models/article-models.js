@@ -82,3 +82,16 @@ exports.selectAllArticles = (sort_by, order, author, topic, limit = 10, p) => {
             } return articles
         })
 };
+
+exports.removeArticleById = (article_id) => {
+    return connection
+    .select('*')
+    .from('articles')
+    .where('article_id', article_id)
+    .del()
+    .then(article =>{
+        if(article === 1){
+            return article
+        } else return Promise.reject({status: 404, msg: 'Article not found'})
+    })
+}

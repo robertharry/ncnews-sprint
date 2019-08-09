@@ -1,10 +1,11 @@
 const articlesRouter = require('express').Router();
-const {getArticleById, patchArticle, postComment, getCommentsByArticleId, getAllArticles} = require('../controllers/article-controller')
+const {getArticleById, patchArticle, postComment, getCommentsByArticleId, getAllArticles, deleteArticle} = require('../controllers/article-controller')
 const {send405Error} = require('../errors/index')
 
 articlesRouter.route('/:article_id')
 .get(getArticleById)
 .patch(patchArticle)
+.delete(deleteArticle)
 .all(send405Error)
 
 articlesRouter.route('/:article_id/comments')

@@ -1,4 +1,4 @@
-const { selectArticle, updateArticle, insertComment, selectCommentsByArticleId, selectAllArticles } = require('../models/article-models')
+const { selectArticle, updateArticle, insertComment, selectCommentsByArticleId, selectAllArticles, removeArticleById } = require('../models/article-models')
 
 exports.getArticleById = (req, res, next) => {
     const { article_id } = req.params
@@ -45,10 +45,10 @@ exports.getCommentsByArticleId = (req, res, next) => {
 exports.getAllArticles = (req, res, next) => {
     const { sort_by, order, author, topic, limit, p } = req.query
     let total = 0
-    selectAllArticles(sort_by, order, author, topic, 1000 )
-    .then(articles1 => {
-       total += articles1.length
-    }).catch(next)
+    selectAllArticles(sort_by, order, author, topic, 1000)
+        .then(articles1 => {
+            total += articles1.length
+        }).catch(next)
     selectAllArticles(sort_by, order, author, topic, limit, p)
         .then(articles => {
             res.status(200).send({ total_count: total, articles: articles })
@@ -56,3 +56,11 @@ exports.getAllArticles = (req, res, next) => {
         .catch(next)
 };
 
+exports.deleteArticle = (req, res, next) => {
+    const { article_id } = req.params
+    removeArticleById(article_id)
+        .then(response => {
+            res.sendStatus(204)
+        })
+        .catch(next)
+}
