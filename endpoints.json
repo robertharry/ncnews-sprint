@@ -118,5 +118,12 @@
     "exampleResponse":{
       
     }
+  },
+  "DELETE /api/articles/:article_id": {
+    "description": "deletes given article by ID and all associated comments",
+    "queries": [],
+    "exampleResponse":{
+      
+    }
   }
 }
