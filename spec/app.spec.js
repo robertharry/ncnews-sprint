@@ -194,6 +194,7 @@ describe('APP', () => {
                         .send({ username: 'butter_bridge', body: 'Here is my comment for this article' })
                         .expect(201)
                         .then(({ body }) => {
+                            console.log(body)
                             expect(body.comment).to.be.an('object')
                             expect(body.comment).to.have.keys('comment_id', 'author', 'article_id', 'votes', 'created_at', 'body')
                         })
