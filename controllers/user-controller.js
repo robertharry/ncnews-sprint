@@ -1,4 +1,4 @@
-const { selectUserById } = require('../models/user-models')
+const { selectUserById,selectAllUsers } = require('../models/user-models')
 
 
 exports.getUserById = (req, res, next) => {
@@ -9,3 +9,11 @@ exports.getUserById = (req, res, next) => {
         })
         .catch(next)
 };
+
+exports.getAllUsers = (req, res, next) => {
+    selectAllUsers()
+    .then((users) => {
+        res.status(200).send({users})
+    })
+    .catch(next)
+}

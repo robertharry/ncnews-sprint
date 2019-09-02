@@ -13,11 +13,11 @@ describe('APP', () => {
         after(() => connection.destroy());
         it('GET returns JSON with all available endpoints on API', () => {
             return request(app)
-            .get('/api')
-            .expect(200)
-            .then(({body}) => {
-                expect(body).to.be.an('object')
-            })
+                .get('/api')
+                .expect(200)
+                .then(({ body }) => {
+                    expect(body).to.be.an('object')
+                })
         });
         describe('API ROUTER ERRORS', () => {
             it('INVALID ROUTE returns 405 if given invalid path', () => {
@@ -94,6 +94,27 @@ describe('APP', () => {
                     return Promise.all(methodPromises)
                 });
             });
+            describe('/', () => {
+                it('returns status 200 an array of user objects', () => {
+                    return request(app)
+                        .get('/api/users')
+                        .expect(200)
+                        .then(({ body }) => {
+                            expect(body.users[0]).to.have.keys('username', 'avatar_url', 'name')
+                        })
+                });
+                it('INVALID METHODS returns 405 and method not allowed', () => {
+                    const invalidMethods = ['patch', 'post', 'delete'];
+                    const methodPromises = invalidMethods.map((method) => {
+                        return request(app)[method]('/api/users')
+                            .expect(405)
+                            .then(({ body: { msg } }) => {
+                                expect(msg).to.equal('Method not allowed!')
+                            });
+                    });
+                    return Promise.all(methodPromises)
+                });
+            });
         });
         describe('/ARTICLES', () => {
             describe('/:article_id', () => {
@@ -159,30 +180,30 @@ describe('APP', () => {
                 });
                 it('DELETE returns 204 and removes article by ID, and associated comments', () => {
                     return request(app)
-                    .delete('/api/articles/1')
-                    .expect(204)
+                        .delete('/api/articles/1')
+                        .expect(204)
                 });
                 it('DELETE ERROR returns 404 not found where article id does not exist', () => {
                     return request(app)
-                    .delete('/api/articles/456')
-                    .expect(404)
-                    .then(({body}) => {
-                        expect(body.msg).to.equal('Article not found')
-                    })
+                        .delete('/api/articles/456')
+                        .expect(404)
+                        .then(({ body }) => {
+                            expect(body.msg).to.equal('Article not found')
+                        })
                 });
                 it('DELETE ERROR returns 400 when given bad article id', () => {
                     return request(app)
-                    .delete('/api/articles/badid')
-                    .expect(400)
-                    .then(({body}) => {
-                        expect(body.msg).to.equal('Bad request')
-                    })
+                        .delete('/api/articles/badid')
+                        .expect(400)
+                        .then(({ body }) => {
+                            expect(body.msg).to.equal('Bad request')
+                        })
                 });
                 it('INVALID METHODS returns 405 and method not allowed', () => {
-                        return request(app)
+                    return request(app)
                         .post('/api/articles/:article_id')
                         .expect(405)
-                        .then(({ body}) => {
+                        .then(({ body }) => {
                             expect(body.msg).to.equal('Method not allowed!')
                         });
                 });
@@ -194,7 +215,6 @@ describe('APP', () => {
                         .send({ username: 'butter_bridge', body: 'Here is my comment for this article' })
                         .expect(201)
                         .then(({ body }) => {
-                            console.log(body)
                             expect(body.comment).to.be.an('object')
                             expect(body.comment).to.have.keys('comment_id', 'author', 'article_id', 'votes', 'created_at', 'body')
                         })
@@ -248,7 +268,7 @@ describe('APP', () => {
                     return request(app)
                         .get('/api/articles/2/comments')
                         .expect(200)
-                        .then(({body}) => {
+                        .then(({ body }) => {
                             expect(body.comments).to.be.an('array')
                             expect(body.comments.length).to.equal(0)
                         })
@@ -313,7 +333,7 @@ describe('APP', () => {
                     return request(app)
                         .get('/api/articles/1/comments')
                         .expect(200)
-                        .then(({body}) => {
+                        .then(({ body }) => {
                             expect(body.comments.length).to.equal(10)
                         })
                 });
@@ -321,7 +341,7 @@ describe('APP', () => {
                     return request(app)
                         .get('/api/articles/1/comments?limit=5')
                         .expect(200)
-                        .then(({body}) => {
+                        .then(({ body }) => {
                             expect(body.comments.length).to.equal(5)
                         })
                 }); //no errors as limit defaults to 10 if no value
@@ -329,7 +349,7 @@ describe('APP', () => {
                     return request(app)
                         .get('/api/articles/1/comments?p=2')
                         .expect(200)
-                        .then(({body}) => {
+                        .then(({ body }) => {
                             expect(body.comments.length).to.equal(3)
                         })
                 });
@@ -337,7 +357,7 @@ describe('APP', () => {
                     return request(app)
                         .get('/api/articles/1/comments?limit=5&p=2')
                         .expect(200)
-                        .then(({body}) => {
+                        .then(({ body }) => {
                             expect(body.comments.length).to.equal(5)
                         })
                 });
@@ -409,9 +429,9 @@ describe('APP', () => {
                         .expect(200)
                         .then(({ body }) => {
                             expect(body.articles.every(article => {
-                             return  article.author === 'butter_bridge'
+                                return article.author === 'butter_bridge'
                             })).to.be.true
-                        }); 
+                        });
                 });
                 it('GET ERROR returns 404 and Author not found where invalid username given', () => {
                     return request(app)
@@ -441,44 +461,44 @@ describe('APP', () => {
                 });
                 it('GET DEFAULTS the number of responses to 10', () => {
                     return request(app)
-                    .get('/api/articles')
-                    .expect(200)
-                    .then(({body}) => {
-                        expect(body.articles.length).to.equal(10)
-                    })
+                        .get('/api/articles')
+                        .expect(200)
+                        .then(({ body }) => {
+                            expect(body.articles.length).to.equal(10)
+                        })
                 });
                 it('GET accepts a limit query to vary the number of responses', () => {
                     return request(app)
-                    .get('/api/articles?limit=5')
-                    .expect(200)
-                    .then(({body}) => {
-                        expect(body.articles.length).to.equal(5)
-                    })
+                        .get('/api/articles?limit=5')
+                        .expect(200)
+                        .then(({ body }) => {
+                            expect(body.articles.length).to.equal(5)
+                        })
                 });// no error tests as covered in default limit test
                 it('GET takes a "p" page query that specifies start page', () => {
                     return request(app)
-                    .get('/api/articles?p=2')
-                    .expect(200)
-                    .then(({body}) => {
-                        expect(body.articles.length).to.equal(2)
-                    })
+                        .get('/api/articles?p=2')
+                        .expect(200)
+                        .then(({ body }) => {
+                            expect(body.articles.length).to.equal(2)
+                        })
                 });
                 it('GET ensures the "p" argument takes the limit into account', () => {
                     return request(app)
-                    .get('/api/articles?limit=5&p=2')
-                    .expect(200)
-                    .then(({body}) => {
-                        expect(body.articles.length).to.equal(5)
-                    })
+                        .get('/api/articles?limit=5&p=2')
+                        .expect(200)
+                        .then(({ body }) => {
+                            expect(body.articles.length).to.equal(5)
+                        })
                 }); //again no further tests as default status is set
                 it('GET adds total count that provides total number of articles ignoring page limit', () => {
                     return request(app)
-                    .get('/api/articles')
-                    .expect(200)
-                    .then(({body}) => {
-                        expect(body).to.have.keys('articles', 'total_count')
-                        expect(body.total_count).to.equal(12)
-                    })
+                        .get('/api/articles')
+                        .expect(200)
+                        .then(({ body }) => {
+                            expect(body).to.have.keys('articles', 'total_count')
+                            expect(body.total_count).to.equal(12)
+                        })
                 });
                 it('INVALID METHODS returns 405 and method not allowed', () => {
                     const invalidMethods = ['patch', 'delete'];
