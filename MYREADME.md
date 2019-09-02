@@ -1,6 +1,10 @@
 <h1>NC-NEWS
 
-<h5>NC-NEWS is an api designed to provide access to articles and comments on a variety of topics. It also allows the user to filter the results in terms of users and comments, along with picking out key topics.
+<h5>NC-NEWS is an api designed to provide access to articles and comments on a variety of topics. It also allows the user to filter the results in terms of users and comments, along with picking out key topics. 
+
+<h5>Find a link to the hosted front end site below.
+
+[Netlify hosted App](https://robs-fe-news-site.netlify.com) 
 
 <h2>Getting started
 
