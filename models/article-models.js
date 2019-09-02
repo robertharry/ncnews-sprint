@@ -95,3 +95,9 @@ exports.removeArticleById = (article_id) => {
         } else return Promise.reject({status: 404, msg: 'Article not found'})
     })
 }
+
+exports.insertArticle = (body) => {
+    return connection('articles')
+    .insert(body)
+    .returning('*')
+}

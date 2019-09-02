@@ -500,6 +500,51 @@ describe('APP', () => {
                             expect(body.total_count).to.equal(12)
                         })
                 });
+                it('POST expects 201 and an object of posted article', () => {
+                    return request(app)
+                    .post('/api/articles')
+                    .send({
+                        title: 'Sony Vaio; or, The Laptop',
+                        topic: 'mitch',
+                        author: 'icellusedkars',
+                        body:
+                          'Call me Mitchell.'
+                      })
+                    .expect(201)
+                    .then(({body}) => {
+                        expect(body.article).to.have.keys('article_id', 'title', 'body', 'votes', 'topic', 'author', 'created_at')
+                    })
+                });
+                it('POST expects 400 bad request when inaccurate column names given', () => {
+                    return request(app)
+                    .post('/api/articles')
+                    .send({
+                        titleInv: 'Sony Vaio; or, The Laptop',
+                        topicInv: 'mitch',
+                        author: 'icellusedkars',
+                        body:
+                          'Call me Mitchell.'
+                      })
+                    .expect(400)
+                    .then(({body}) => {
+                        expect(body.msg).to.equal('Cannot sort by column that does not exist')
+                    })
+                });
+                it('POST expects 404 bot found when incomplete article data provided', () => {
+                    return request(app)
+                    .post('/api/articles')
+                    .send({
+                        title: '',
+                        topic: 'mitch',
+                        author: '',
+                        body:
+                          'Call me Mitchell.'
+                      })
+                    .expect(404)
+                    .then(({body}) => {
+                        expect(body.msg).to.equal('Not found in table')
+                    })
+                });
                 it('INVALID METHODS returns 405 and method not allowed', () => {
                     const invalidMethods = ['patch', 'delete'];
                     const methodPromises = invalidMethods.map((method) => {
