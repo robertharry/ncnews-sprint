@@ -14,7 +14,8 @@ exports.psqlErrors = (err, req, res, next) => {
         '22P02': 'Bad request',
         '23503': 'Not found in table',
         '42703': 'Cannot sort by column that does not exist',
-        '23502': 'Invalid input'
+        '23502': 'Invalid input',
+        '23505': 'Already exists'
     }
     if (err.code === '23503') {
         res.status(404).send({ msg: errCodes[err.code] })

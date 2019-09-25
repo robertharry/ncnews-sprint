@@ -51,8 +51,45 @@ describe('APP', () => {
 
                     });
             });
+            it('POST returns status 201 and object of new topic', () => {
+                return request(app)
+                .post('/api/topics')
+                .send({slug:"coding", description:"all about them 1's and 0's"})
+                .expect(201)
+                .then(({body}) => {
+                    expect(body.topic).to.be.an('object')
+                    expect(body.topic.slug).to.equal("coding")
+                })
+            });
+            it('POST ERROR returns status 400 if request to post topic that already exists', () => {
+                return request(app)
+                .post('/api/topics')
+                .send({slug:"cats", description:"dem cats"})
+                .expect(400)
+                .then(({body}) => {
+                    expect(body.msg).to.equal('Already exists')
+                })
+            });
+            it('POST ERROR returns 400 when no slug string provided', () => {
+                return request(app)
+                .post('/api/topics')
+                .send({slug:"", description:"dem cats"})
+                .expect(400)
+                .then(({body}) => {
+                    expect(body.msg).to.equal('No topic inserted')
+                })
+            });
+            it('POST ERROR returns 400 when bad column name provided', () => {
+                return request(app)
+                .post('/api/topics')
+                .send({snail:"cats", description:"dem cats"})
+                .expect(400)
+                .then(({body}) => {
+                    expect(body.msg).to.equal('Cannot sort by column that does not exist')
+                })
+            });
             it('INVALID METHODS returns 405 and method not allowed', () => {
-                const invalidMethods = ['patch', 'post', 'delete'];
+                const invalidMethods = ['patch', 'delete'];
                 const methodPromises = invalidMethods.map((method) => {
                     return request(app)[method]('/api/topics')
                         .expect(405)
@@ -502,48 +539,48 @@ describe('APP', () => {
                 });
                 it('POST expects 201 and an object of posted article', () => {
                     return request(app)
-                    .post('/api/articles')
-                    .send({
-                        title: 'Sony Vaio; or, The Laptop',
-                        topic: 'mitch',
-                        author: 'icellusedkars',
-                        body:
-                          'Call me Mitchell.'
-                      })
-                    .expect(201)
-                    .then(({body}) => {
-                        expect(body.article).to.have.keys('article_id', 'title', 'body', 'votes', 'topic', 'author', 'created_at')
-                    })
+                        .post('/api/articles')
+                        .send({
+                            title: 'Sony Vaio; or, The Laptop',
+                            topic: 'mitch',
+                            author: 'icellusedkars',
+                            body:
+                                'Call me Mitchell.'
+                        })
+                        .expect(201)
+                        .then(({ body }) => {
+                            expect(body.article).to.have.keys('article_id', 'title', 'body', 'votes', 'topic', 'author', 'created_at')
+                        })
                 });
                 it('POST expects 400 bad request when inaccurate column names given', () => {
                     return request(app)
-                    .post('/api/articles')
-                    .send({
-                        titleInv: 'Sony Vaio; or, The Laptop',
-                        topicInv: 'mitch',
-                        author: 'icellusedkars',
-                        body:
-                          'Call me Mitchell.'
-                      })
-                    .expect(400)
-                    .then(({body}) => {
-                        expect(body.msg).to.equal('Cannot sort by column that does not exist')
-                    })
+                        .post('/api/articles')
+                        .send({
+                            titleInv: 'Sony Vaio; or, The Laptop',
+                            topicInv: 'mitch',
+                            author: 'icellusedkars',
+                            body:
+                                'Call me Mitchell.'
+                        })
+                        .expect(400)
+                        .then(({ body }) => {
+                            expect(body.msg).to.equal('Cannot sort by column that does not exist')
+                        })
                 });
                 it('POST expects 404 bot found when incomplete article data provided', () => {
                     return request(app)
-                    .post('/api/articles')
-                    .send({
-                        title: '',
-                        topic: 'mitch',
-                        author: '',
-                        body:
-                          'Call me Mitchell.'
-                      })
-                    .expect(404)
-                    .then(({body}) => {
-                        expect(body.msg).to.equal('Not found in table')
-                    })
+                        .post('/api/articles')
+                        .send({
+                            title: '',
+                            topic: 'mitch',
+                            author: '',
+                            body:
+                                'Call me Mitchell.'
+                        })
+                        .expect(404)
+                        .then(({ body }) => {
+                            expect(body.msg).to.equal('Not found in table')
+                        })
                 });
                 it('INVALID METHODS returns 405 and method not allowed', () => {
                     const invalidMethods = ['patch', 'delete'];
